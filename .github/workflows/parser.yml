@@ -1,0 +1,53 @@
+name: Daily Event Parser
+
+on:
+  schedule:
+    # Каждый день в 03:00 UTC (06:00 по Москве)
+    - cron: '0 3 * * *'
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - '.github/workflows/parser.yml'
+      - 'backend/app/services/parser_service.py'
+      - 'backend/app/services/parsers/**'
+
+jobs:
+  parse:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v5
+      
+    - name: Set up Python
+      uses: actions/setup-python@v6
+      with:
+        python-version: '3.11'
+        
+    - name: Install dependencies
+      run: |
+        cd backend
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        
+    - name: Run Parser
+      env:
+        DATABASE_URL: ${{ secrets.PROD_DATABASE_URL }}
+        GIGACHAT_CLIENT_ID: ${{ secrets.GIGACHAT_CLIENT_ID }}
+        GIGACHAT_SECRET: ${{ secrets.GIGACHAT_SECRET }}
+        GIGACHAT_SCOPE: ${{ secrets.GIGACHAT_SCOPE }}
+        VK_ACCESS_TOKEN: ${{ secrets.VK_ACCESS_TOKEN }}
+      run: |
+        cd backend
+        python -m app.services.parser_service
+        
+    - name: Upload logs on failure
+      if: failure()
+      uses: actions/upload-artifact@v5
+      with:
+        name: parser-logs
+        path: |
+          backend/*.log
+          backend/parser_output.txt

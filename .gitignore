@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Виртуальное окружение
+venv/
+env/
+.venv/
+
+# Логи
+*.log
+parser_output.txt
+backend/logs/
+
+# База данных
+*.db
+*.sqlite3
+postgres/data/
+
+# Переменные окружения
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+Desktop.ini
+
+# Node / Frontend
+node_modules/
+frontend/dist/
+frontend/.vite/

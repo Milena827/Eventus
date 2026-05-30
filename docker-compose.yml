@@ -1,0 +1,39 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: eventus_postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: eventus_user
+      POSTGRES_PASSWORD: eventus_password
+      POSTGRES_DB: eventus_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres/data:/var/lib/postgresql/data
+      - ./postgres/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - eventus_network
+
+  backend:
+    build: ./backend
+    container_name: eventus_backend
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      DATABASE_URL: postgresql://eventus_user:eventus_password@postgres:5432/eventus_db
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+    volumes:
+      - ./backend:/app
+    networks:
+      - eventus_network
+
+networks:
+  eventus_network:
+    driver: bridge
